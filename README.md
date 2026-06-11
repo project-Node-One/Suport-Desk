@@ -1,10 +1,10 @@
-# 🎫 AI Support Desk
+# AI Support Desk
 
 Plataforma web full-stack para la **gestión de tickets e incidencias técnicas**. Los usuarios pueden registrarse, autenticarse, crear y gestionar tickets (estados, prioridades, comentarios) y visualizar métricas en un dashboard. Incluye una capa opcional de **IA** para clasificación/resumen automático de tickets.
 
 ---
 
-## 🧱 Stack Tecnológico
+## Stack Tecnológico
 
 | Capa | Tecnología |
 |------|-----------|
@@ -28,7 +28,7 @@ Database      →  PostgreSQL
 
 ---
 
-## 📁 Arquitectura de Carpetas
+## Arquitectura de Carpetas
 
 Monorepo con frontend, backend e infraestructura separados.
 
@@ -85,7 +85,7 @@ ai-support-desk/
 
 ---
 
-## 👥 Reparto del Equipo (por capas/especialidad)
+## Reparto del Equipo (por capas/especialidad)
 
 | # | Rol | Responsabilidad principal | Rama base |
 |---|-----|---------------------------|-----------|
@@ -96,11 +96,11 @@ ai-support-desk/
 
 > El **Integrante 1** arranca el esqueleto del repo y el modelo de datos **primero**, porque el resto depende de la base (estructura de carpetas, Prisma schema y contrato de auth). Ver dependencias en el documento de HU.
 
-📄 **Detalle completo de tareas, criterios de aceptación, ramas y orden:** [docs/historias-de-usuario.md](docs/historias-de-usuario.md)
+**Detalle completo de tareas, criterios de aceptación, ramas y orden:** [docs/historias-de-usuario.md](docs/historias-de-usuario.md)
 
 ---
 
-## 🌿 Estrategia de Ramas (GitFlow ligero)
+## Estrategia de Ramas (GitFlow ligero)
 
 ```text
 main ──────────────●────────────────●──────────  (estable / releases)
@@ -140,7 +140,7 @@ chore: configura docker-compose
 
 ---
 
-## 🚀 Puesta en Marcha (Local)
+## Puesta en Marcha (Local)
 
 > Requisitos: Node.js 18+, Docker y Docker Compose.
 
@@ -167,7 +167,7 @@ npm run dev                   # http://localhost:5173
 
 ---
 
-## 📦 Despliegue
+## Despliegue
 
 - **Backend dockerizado** y orquestado con `docker-compose` (backend + PostgreSQL).
 - **Deploy en VPS Linux** vía SSH, con Nginx como reverse proxy.
@@ -177,7 +177,7 @@ Ver guía en [infra/deploy/](infra/deploy/).
 
 ---
 
-## ✅ Funcionalidades Mínimas (Definition of Done del proyecto)
+## Funcionalidades Mínimas (Definition of Done del proyecto)
 
 - [ ] Registro e inicio de sesión con JWT
 - [ ] CRUD completo de tickets
