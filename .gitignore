@@ -1,12 +1,12 @@
 # Dependencias
 node_modules/
-docs/
 
 # Entornos
 .env
 .env.local
 *.env
 !*.env.example
+HU.md
 
 # Builds
 dist/
