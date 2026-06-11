@@ -1,0 +1,62 @@
+// Prisma schema — AI Support Desk
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  tickets   Ticket[]
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+}
+
+model Ticket {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  author      User           @relation(fields: [authorId], references: [id])
+  authorId    String
+  comments    Comment[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  body      String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+}
