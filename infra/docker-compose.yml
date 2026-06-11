@@ -27,9 +27,16 @@ services:
     environment:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-support_desk}?schema=public"
       JWT_SECRET: ${JWT_SECRET:-cambia-esto}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
       PORT: 3000
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

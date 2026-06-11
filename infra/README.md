@@ -55,12 +55,45 @@ Si el backend corre dentro de Docker Compose, el host es el nombre del
 servicio (`postgres`) en lugar de `localhost`; el compose ya inyecta esa
 URL automáticamente al servicio `backend`.
 
+## Stack completo: API + PostgreSQL (HU-4.2)
+
+Construye la imagen del backend y levanta todo el stack. El backend espera
+a que postgres esté sano, aplica las migraciones de Prisma pendientes
+(`prisma migrate deploy`) y arranca la API.
+
+```bash
+cd infra
+docker compose up -d --build
+```
+
+Verificar que la API responde:
+
+```bash
+curl http://localhost:3000/health
+# {"status":"ok","service":"ai-support-desk-api"}
+```
+
+Ver logs del backend (migraciones + arranque):
+
+```bash
+docker compose logs -f backend
+```
+
+Notas del build (`backend/Dockerfile`):
+
+- Imagen `node:20-alpine`; dependencias instaladas con `npm ci`
+  (reproducible gracias a `package-lock.json`).
+- `prisma generate` se ejecuta en build; `prisma migrate deploy` en cada
+  arranque, por lo que las nuevas migraciones se aplican solas.
+- `backend/.dockerignore` excluye `node_modules`, `.env` y tests de la
+  imagen.
+
 ## Servicios definidos
 
 | Servicio | Descripción | Puerto host |
 |----------|-------------|-------------|
 | `postgres` | PostgreSQL 16 (alpine) con volumen persistente y healthcheck | `5432` (configurable con `POSTGRES_PORT`) |
-| `backend` | API Express dockerizada (HU-4.2) | `3000` |
+| `backend` | API Express dockerizada con healthcheck sobre `/health` | `3000` (configurable con `BACKEND_PORT`) |
 
 ## Carpetas
 
