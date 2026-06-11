@@ -1,0 +1,67 @@
+# Stack de PRODUCCION para el VPS (HU-4.3 / HU-4.4).
+#
+# Self-contained y endurecido respecto al docker-compose.yml de desarrollo:
+#   - postgres y backend NO se exponen al host (solo viven en la red interna).
+#   - El unico punto de entrada publico es Nginx (puerto 80, 443 con HU-4.4).
+#
+# Uso en el VPS:
+#   cp .env.production.example .env   # y completar con valores REALES
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+#
+# Probar en local (puerto del host configurable con HTTP_PORT):
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+#   curl http://localhost/health
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: support_desk_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?define POSTGRES_USER en .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ${POSTGRES_DB:?define POSTGRES_DB en .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # Sin "ports": la BD solo es accesible por la red interna de compose.
+
+  backend:
+    build: ../backend
+    container_name: support_desk_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      JWT_SECRET: ${JWT_SECRET:?define JWT_SECRET en .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost}
+      PORT: 3000
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Sin "ports": solo Nginx accede al backend por la red interna.
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: support_desk_proxy
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  postgres_data:
