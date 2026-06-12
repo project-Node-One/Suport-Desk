@@ -22,7 +22,9 @@ export async function apiRequest(path, { method = 'GET', body, auth = true } = {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data.message || 'Error en la petición');
+    let errMsg = data.message || data.error || 'Error en la petición';
+    if (typeof errMsg === 'object') errMsg = JSON.stringify(errMsg);
+    throw new Error(errMsg);
   }
 
   return data;

@@ -43,8 +43,8 @@ export async function TicketDetailPage(container, params) {
           const priority = editForm.querySelector('#edit-priority').value;
 
           try {
-            const updated = await updateTicket(id, { title, description, status, priority });
-            render(updated);
+            await updateTicket(id, { title, description, status, priority });
+            navigate('/tickets');
           } catch (err) {
             errorBox.textContent = err.message;
             errorBox.style.display = 'block';
