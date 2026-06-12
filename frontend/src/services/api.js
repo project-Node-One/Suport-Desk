@@ -1,26 +1,31 @@
-// Cliente API centralizado (Integrante 3 — HU-3.3).
-// Todas las peticiones al backend pasan por aquí.
-
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+// Cliente base para consumir la API del backend
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 function getToken() {
-  return localStorage.getItem("token");
+  return localStorage.getItem('token');
 }
 
-export async function apiFetch(path, options = {}) {
-  const token = getToken();
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
+export async function apiRequest(path, { method = 'GET', body, auth = true } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+
+  if (auth) {
+    const token = getToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
   });
 
+  const data = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error ?? `Error ${res.status}`);
+    let errMsg = data.message || data.error || 'Error en la petición';
+    if (typeof errMsg === 'object') errMsg = JSON.stringify(errMsg);
+    throw new Error(errMsg);
   }
-  return res.status === 204 ? null : res.json();
+
+  return data;
 }
