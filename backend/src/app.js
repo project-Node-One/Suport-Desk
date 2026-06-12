@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 
-// TODO (Integrante 1): montar rutas de auth   -> import authRoutes from "./routes/auth.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 // TODO (Integrante 2): montar rutas de tickets -> import ticketRoutes from "./routes/ticket.routes.js";
 // TODO (Integrante 2): montar Swagger          -> import { setupSwagger } from "./docs/swagger.js";
 
@@ -16,7 +16,7 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok", service: "ai-support-desk-api" });
 });
 
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 // app.use("/api/tickets", ticketRoutes);
 // setupSwagger(app);
 
